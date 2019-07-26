@@ -16,6 +16,7 @@ let db = new Datastore({
 
 app.get('/', (req, res) => {
     res.send('hello there')
+    res.end(() => {})
 })
 
 // ADD
