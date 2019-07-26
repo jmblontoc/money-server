@@ -91,5 +91,5 @@ app.post('/playground', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`running on port ${port}`)
+    console.log(`running on port`)
 })
