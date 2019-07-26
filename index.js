@@ -1,9 +1,11 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const port = 8181
 
 const helper = require('./helper')
 
+app.use(cors())
 app.use(express.json())
 
 let Datastore = require('nedb')
