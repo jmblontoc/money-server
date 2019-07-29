@@ -83,6 +83,23 @@ app.delete("/v1/delete/:id", (req, res) => {
     })
 })
 
+// DELETE everything
+app.delete("v1/delete-all", (req, res) => {
+    
+    db.remove({}, { multi: true }, (err, rows) => {
+        if (err) {
+            res.status(505).json({
+                error: err
+            })
+        }
+
+        res.status(202).json({
+            messsage: "Successfully deleted all records",
+            count: rows
+        })
+    })
+})
+
 app.post('/playground', (req, res) => {
     console.log(req.body)
     res.end(() => {
