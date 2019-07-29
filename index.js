@@ -8,15 +8,21 @@ const helper = require('./helper')
 app.use(cors())
 app.use(express.json())
 
-let Datastore = require('nedb')
-let db = new Datastore({
-    filename: 'db.db',
-    autoload: true
-})
+const MongoClient = require('mongodb').MongoClient
+const password = encodeURI("B.pdQ5L@c7s!Ayp")
+const uri = `mongodb+srv://sword:${password}@jmsword-5rgwp.mongodb.net/test?retryWrites=true&w=majority`
+const client = new MongoClient(uri, { useNewUrlParser: true })
 
 app.get('/', (req, res) => {
-    res.send('hello there')
-    res.end(() => {})
+
+    client.connect(err => {
+        if (err) {
+            res.json({ err: err})
+        }
+
+        res.send("I have connected to mongodb")
+        res.end(() => {})
+    })
 })
 
 // ADD
@@ -29,17 +35,25 @@ app.post('/v1/add-record', (req, res) => {
         date: (new Date()).toString()
     }
 
-    db.insert(record, (err, doc) => {
-
+    client.connect(err => {
         if (err) {
-            res.status(501).json({
-                error: err
-            })
+            res.status(518).json({ err: err})
         }
 
-        res.status(201).json({
-            message: "Success!",
-            data: doc
+        const collection = client.db("money").collection("records")
+        if (!collection) {
+            res.status(510).json({ msg: "no collection found" })
+        }
+        
+        collection.insertOne(record, (err, result) => {
+            if (err) {
+                res.status(511).json({ err: err })
+            }
+
+            res.status(201).json({
+                msg: "Successfully inserted",
+                result: result
+            })
         })
     })
 
@@ -48,21 +62,28 @@ app.post('/v1/add-record', (req, res) => {
 // GET ALL WITH TOTAL
 app.get('/v1/records', (req, res) => {
 
-    db.find({}, (err, data) => {
+    client.connect(err => {
         if (err) {
-            res.status(502).json({
-                error: err
-            })
+            res.status(518).json({ err: err})
         }
 
-        else {
-
-            res.status(200).json({
-                records: data,
-                total: helper.get_total(data)
-            })
+        const collection = client.db("money").collection("records")
+        if (!collection) {
+            res.status(510).json({ msg: "no collection found" })
         }
 
+        collection.find().sort({ date: -1 }).toArray().then(
+            (resp) => {
+                res.status(200).json({
+                    records: resp
+                })
+            },
+            err => {
+                res.status(512).json({
+                    err: err
+                })
+            }
+        )
         
     })
 })
@@ -70,34 +91,37 @@ app.get('/v1/records', (req, res) => {
 // DELETE RECORD
 app.delete("/v1/delete/:id", (req, res) => {
     
-    db.remove({ _id: req.params.id }, {}, (err, n) => {
-        if (err) {
-            res.status(503).json({
-                error: err
-            })
-        }
+    // this is deprecated
+    // db.remove({ _id: req.params.id }, {}, (err, n) => {
+    //     if (err) {
+    //         res.status(503).json({
+    //             error: err
+    //         })
+    //     }
 
-        res.status(201).json({
-            message: "Successfully deleted record"
-        })
-    })
+    //     res.status(201).json({
+    //         message: "Successfully deleted record"
+    //     })
+    // })
 })
 
 // DELETE everything
 app.delete("/v1/delete-all", (req, res) => {
     
-    db.remove({}, { multi: true }, (err, rows) => {
-        if (err) {
-            res.status(505).json({
-                error: err
-            })
-        }
+    // deprecated too
 
-        res.status(202).json({
-            messsage: "Successfully deleted all records",
-            count: rows
-        })
-    })
+    // db.remove({}, { multi: true }, (err, rows) => {
+    //     if (err) {
+    //         res.status(505).json({
+    //             error: err
+    //         })
+    //     }
+
+    //     res.status(202).json({
+    //         messsage: "Successfully deleted all records",
+    //         count: rows
+    //     })
+    // })
 })
 
 app.post('/playground', (req, res) => {
