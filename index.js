@@ -48,7 +48,7 @@ app.post('/v1/add-record', (req, res) => {
 // GET ALL WITH TOTAL
 app.get('/v1/records', (req, res) => {
 
-    db.find({}, (err, data) => {
+    db.find({}).sort({ date: -1 }).exec((err, data) => {
         if (err) {
             res.status(502).json({
                 error: err
