@@ -84,7 +84,7 @@ app.delete("/v1/delete/:id", (req, res) => {
 })
 
 // DELETE everything
-app.delete("v1/delete-all", (req, res) => {
+app.delete("/v1/delete-all", (req, res) => {
     
     db.remove({}, { multi: true }, (err, rows) => {
         if (err) {
