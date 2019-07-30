@@ -20,8 +20,9 @@ app.get('/', (req, res) => {
             res.json({ err: err})
         }
 
-        res.send("I have connected to mongodb")
-        res.end(() => {})
+        res.json({
+            client: client
+        })
     })
 })
 
