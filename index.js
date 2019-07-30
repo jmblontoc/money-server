@@ -8,12 +8,14 @@ const helper = require('./helper')
 app.use(cors())
 app.use(express.json())
 
-const MongoClient = require('mongodb').MongoClient
-const password = encodeURI("B.pdQ5L@c7s!Ayp")
-const uri = `mongodb+srv://sword:${password}@jmsword-5rgwp.mongodb.net/test?retryWrites=true&w=majority`
-const client = new MongoClient(uri, { useNewUrlParser: true })
 
 app.get('/', (req, res) => {
+
+    const MongoClient = require('mongodb').MongoClient
+    const password = encodeURI("B.pdQ5L@c7s!Ayp")
+    const uri = `mongodb+srv://sword:${password}@jmsword-5rgwp.mongodb.net/test?retryWrites=true&w=majority`
+    const client = new MongoClient(uri, { useNewUrlParser: true })
+
 
     client.connect(err => {
         if (err) {
