@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 
     client.connect(err => {
         if (err) {
-            res.json({ err: err})
+            res.json({ err: err })
         }
 
         res.json({
@@ -38,14 +38,14 @@ app.post('/v1/add-record', (req, res) => {
 
     client.connect(err => {
         if (err) {
-            res.status(518).json({ err: err})
+            res.status(518).json({ err: err })
         }
 
         const collection = client.db("money").collection("records")
         if (!collection) {
             res.status(510).json({ msg: "no collection found" })
         }
-        
+
         collection.insertOne(record, (err, result) => {
             if (err) {
                 res.status(511).json({ err: err })
@@ -65,7 +65,7 @@ app.get('/v1/records', (req, res) => {
 
     client.connect(err => {
         if (err) {
-            res.status(518).json({ err: err})
+            res.status(518).json({ err: err })
         }
 
         const collection = client.db("money").collection("records")
@@ -74,10 +74,12 @@ app.get('/v1/records', (req, res) => {
         }
 
         collection.find().sort({ date: -1 }).toArray().then(
-            (resp) => {
-                res.status(200).json({
-                    records: resp
-                })
+            async (resp) => {
+                let total = await helper.get_total(collection)
+                res.json({
+                    records: resp,
+                    total: total[0].total
+                }).status(200)
             },
             err => {
                 res.status(512).json({
@@ -85,13 +87,12 @@ app.get('/v1/records', (req, res) => {
                 })
             }
         )
-        
     })
 })
 
 // DELETE RECORD
 app.delete("/v1/delete/:id", (req, res) => {
-    
+
     // this is deprecated
     // db.remove({ _id: req.params.id }, {}, (err, n) => {
     //     if (err) {
@@ -108,7 +109,7 @@ app.delete("/v1/delete/:id", (req, res) => {
 
 // DELETE everything
 app.delete("/v1/delete-all", (req, res) => {
-    
+
     // deprecated too
 
     // db.remove({}, { multi: true }, (err, rows) => {

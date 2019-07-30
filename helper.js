@@ -7,7 +7,16 @@ let getTotal = (data) => {
 
     return total
 }
+let getTotalAmount = (collection) => {
+    return collection.aggregate([{
+        $group: {
+            total: { $sum: "$amount" },
+            _id: "total"
+        }
+    }]).toArray()
+}
 
 module.exports = {
-    get_total: getTotal
+    get_total: getTotalAmount
 }
+
