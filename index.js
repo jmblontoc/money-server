@@ -4,6 +4,7 @@ const cors = require('cors')
 const port = process.env.PORT || 8181
 
 const helper = require('./helper')
+const moment = require('moment')
 
 app.use(cors())
 app.use(express.json())
@@ -76,6 +77,23 @@ app.get('/v1/records', (req, res) => {
         collection.find().sort({ date: -1 }).toArray().then(
             async (resp) => {
                 let total = await helper.get_total(collection)
+
+                resp = resp.sort((a, b) => {
+                    let formatter = "ddd MMM DD HH:mm:ss Z"
+                    let momentA = moment(a.date, formatter)
+                    let momentB = moment(b.date, formatter)
+
+                    if (momentA.isAfter(momentB)) {
+                        return -1
+                    }
+                    else if (momentA.isBefore(momentB)) {
+                        return 1
+                    }
+
+                    return 0
+                    
+                })
+
                 res.json({
                     records: resp,
                     total: total[0].total
