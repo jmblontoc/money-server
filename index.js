@@ -34,7 +34,7 @@ app.post('/v1/add-record', (req, res) => {
         title: req.body.title,
         description: req.body.description,
         amount: req.body.amount,
-        date: (new Date()).toString()
+        date: moment().format("LLLL")
     }
 
     client.connect(err => {
@@ -79,18 +79,12 @@ app.get('/v1/records', (req, res) => {
                 let total = await helper.get_total(collection)
 
                 resp = resp.sort((a, b) => {
-                    let formatter = "ddd MMM DD HH:mm:ss Z"
-                    let momentA = moment(a.date, formatter)
-                    let momentB = moment(b.date, formatter)
+                    let formatter = "LLLL"
+                    let formatterComparator = "YYYYMMDDHHmmss"
+                    let momentA = moment(a.date, formatter).format(formatterComparator)
+                    let momentB = moment(b.date, formatter).format(formatterComparator)
 
-                    if (momentA.isAfter(momentB)) {
-                        return -1
-                    }
-                    else if (momentA.isBefore(momentB)) {
-                        return 1
-                    }
-
-                    return 0
+                    return momentB - momentA
                     
                 })
 
