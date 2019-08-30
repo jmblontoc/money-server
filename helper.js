@@ -43,8 +43,8 @@ let createHTMLtable = (data) => {
             `
             <tr>
                 <td>${i.title}</td>
-                <td align="right">${i.description}</td>
-                <td>${i.date}</td>
+                <td>${i.description}</td>
+                <td align="right">${i.date}</td>
                 <td align="right">${i.amount}</td>
             </tr>
             `
