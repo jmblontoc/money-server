@@ -1,12 +1,3 @@
-let getTotal = (data) => {
-
-    let total = 0
-    for (let r of data) {
-        total += r.amount
-    }
-
-    return total
-}
 let getTotalAmount = (collection) => {
     return collection.aggregate([{
         $group: {
@@ -16,7 +7,57 @@ let getTotalAmount = (collection) => {
     }]).toArray()
 }
 
+const credentials = {
+    user: 'mrboristhecat@gmail.com',
+    pass: 'googlehelper'
+}
+
+let setupMail = (mailer, subject, content) => {
+
+    let transporter = mailer.createTransport({
+        service: 'gmail',
+        auth: credentials
+    })
+
+    let mailOptions = {
+        from: 'dev.jmlontoc@gmail.com',
+        to: 'jmlontoc4@gmail.com',
+        subject: subject,
+        html: content
+    }
+
+    return { transporter, mailOptions }
+}
+
+let createHTMLtable = (data) => {
+
+    let html = `<table border='1' style='border-collapse: collapse;'>
+    <tr><th style='padding: 5px;'>Item</th>
+    <th style='padding: 5px;'>Description</th>
+    <th style='padding: 5px;' align='right'>Time</th>
+    <th align='right' style='padding: 5px;'>Amount</th></tr>`
+
+    for (let i of data) {
+
+        html += 
+            `
+            <tr>
+                <td>${i.title}</td>
+                <td align="right">${i.description}</td>
+                <td>${i.date}</td>
+                <td align="right">${i.amount}</td>
+            </tr>
+            `
+    }
+
+    html += '</table>'
+
+    return html
+}
+
 module.exports = {
-    get_total: getTotalAmount
+    get_total: getTotalAmount,
+    setupMail,
+    createHTMLtable
 }
 

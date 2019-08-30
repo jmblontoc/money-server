@@ -4,7 +4,10 @@ const cors = require('cors')
 const port = process.env.PORT || 8181
 
 const helper = require('./helper')
+const analytics = require('./analytics')
 const moment = require('moment')
+const mailer = require('nodemailer')
+const fs = require('fs')
 
 app.use(cors())
 app.use(express.json())
@@ -85,7 +88,7 @@ app.get('/v1/records', (req, res) => {
                     let momentB = moment(b.date, formatter).format(formatterComparator)
 
                     return momentB - momentA
-                    
+
                 })
 
                 res.json({
@@ -102,46 +105,47 @@ app.get('/v1/records', (req, res) => {
     })
 })
 
-// DELETE RECORD
-app.delete("/v1/delete/:id", (req, res) => {
 
-    // this is deprecated
-    // db.remove({ _id: req.params.id }, {}, (err, n) => {
-    //     if (err) {
-    //         res.status(503).json({
-    //             error: err
-    //         })
-    //     }
+// DAILY EXPENSE REPORT
+app.get('/v1/email/daily', async (req, res) => {
 
-    //     res.status(201).json({
-    //         message: "Successfully deleted record"
-    //     })
-    // })
+    let data = await analytics.dailyExpenseReport()
+    fs.readFile('./email/daily-report.html', "utf8", (err, info) => {
+        if (err) {
+            res.json({ err: err }).status(599)
+        }
+
+        info = info.split("$DAILY_TOTAL").join(data.dailyTotal)
+
+        let tableData = helper.createHTMLtable(data.recordsToday)
+        let content = info + tableData
+        let mail = helper.setupMail(mailer, 'Daily Expense Report', content)
+
+        mail.transporter.sendMail(mail.mailOptions, (err, info) => {
+            if (err) {
+                res.status(520).json({ error: err })
+            }
+
+            res.status(203).json({ info: info })
+        })
+    })
+
+
 })
 
-// DELETE everything
-app.delete("/v1/delete-all", (req, res) => {
+app.post('/playground', async (req, res) => {
 
-    // deprecated too
+    let data = await analytics.dailyExpenseReport()
+    fs.readFile('./email/daily-report.html', "utf8", (err, info) => {
+        if (err) {
+            res.json({ err: err }).status(599)
+        }
 
-    // db.remove({}, { multi: true }, (err, rows) => {
-    //     if (err) {
-    //         res.status(505).json({
-    //             error: err
-    //         })
-    //     }
+        info = info.split("$DAILY_TOTAL").join(data.dailyTotal)
 
-    //     res.status(202).json({
-    //         messsage: "Successfully deleted all records",
-    //         count: rows
-    //     })
-    // })
-})
+        let tableData = helper.createHTMLtable(data.recordsToday)
 
-app.post('/playground', (req, res) => {
-    console.log(req.body)
-    res.end(() => {
-        console.log('end')
+        //res.json(info)
     })
 })
 
