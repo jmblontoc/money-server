@@ -21,7 +21,7 @@ let setupMail = (mailer, subject, content) => {
 
     let mailOptions = {
         from: 'dev.jmlontoc@gmail.com',
-        to: ['jmlontoc4@gmail.com', 'ianne_malabanan@dlsu.edu.ph'],
+        to: ['jmlontoc4@gmail.com'],
         subject: subject,
         html: content
     }
