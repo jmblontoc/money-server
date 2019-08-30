@@ -133,19 +133,14 @@ app.get('/v1/email/daily', async (req, res) => {
 
 })
 
-app.post('/playground', async (req, res) => {
+app.get('/playground', async (req, res) => {
 
-    let data = await analytics.dailyExpenseReport()
-    fs.readFile('./email/daily-report.html', "utf8", (err, info) => {
-        if (err) {
-            res.json({ err: err }).status(599)
-        }
+    let averages = await analytics.loadAverages()
+    let dailyTotal = await analytics.loadTotalPerDay()
 
-        info = info.split("$DAILY_TOTAL").join(data.dailyTotal)
-
-        let tableData = helper.createHTMLtable(data.recordsToday)
-
-        //res.json(info)
+    res.json({
+        averages,
+        dailyTotal
     })
 })
 

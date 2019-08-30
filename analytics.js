@@ -1,5 +1,6 @@
 const moment = require('moment')
 const fetch = require('node-fetch')
+const formatter = "LLLL"
 
 let dailyExpenseReport = async () => {
 
@@ -7,7 +8,6 @@ let dailyExpenseReport = async () => {
     let data = await records.json()
 
     let items = data.records
-    let formatter = "LLLL"
     let comparatorFormat = "MMDDYYYY"
     let now = moment().format(comparatorFormat)
 
@@ -30,8 +30,71 @@ let dailyExpenseReport = async () => {
     }
 }
 
+let loadTotalPerDay = async () => {
+
+    let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
+    let data = await records.json()
+    let items = data.records
+
+    items.map(item => {
+        if (item.is_old) {
+            item.date = moment(item.date, formatter).format("LL")
+        }
+        else {
+            item.date = moment(item.date, formatter).add(8, 'h').format("LL")
+        }
+        return item
+    })
+
+    let aggregatedData = {}
+    for (let item of items) {
+        if (aggregatedData.hasOwnProperty(item.date)) {
+            aggregatedData[item.date] += item.amount
+        }
+        else {
+            aggregatedData[item.date] = item.amount
+        }
+    }
+
+    return aggregatedData
+}
+
+let loadAverages = async () => {
+
+    let core = {}
+
+    let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
+    let data = await records.json()
+    let items = data.records
+
+    core['dailyAverage'] = data.total /items.length
+
+    items = items.map(item => {
+        item.is_old ? item.date = moment(item.date, formatter).format("dddd") : 
+                    item.date = moment(item.date, formatter).add(8, 'h').format("dddd")
+
+        return item
+    })
+
+    let perDayTotal = {}
+    for (let item of items) {
+        if (perDayTotal.hasOwnProperty(item.date)) {
+            perDayTotal[item.date] += item.amount
+        }
+        else {
+            perDayTotal[item.date] = item.amount
+        }
+    }
+
+    core['perDayTotal'] = perDayTotal
+
+    return core
+}
+
 
 // ------------------------ EXPORTS BELOW ----------------------------------
 module.exports = {
-    dailyExpenseReport
+    dailyExpenseReport,
+    loadTotalPerDay,
+    loadAverages
 }
