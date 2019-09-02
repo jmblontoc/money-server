@@ -110,6 +110,8 @@ app.get('/v1/records', (req, res) => {
 app.get('/v1/email/daily', async (req, res) => {
 
     let data = await analytics.dailyExpenseReport()
+    let totalCurrentMonth = await analytics.totalCurrentMonth()
+
     fs.readFile('./email/daily-report.html', "utf8", (err, info) => {
         if (err) {
             res.json({ err: err }).status(599)
@@ -118,7 +120,11 @@ app.get('/v1/email/daily', async (req, res) => {
         info = info.split("$DAILY_TOTAL").join(data.dailyTotal)
 
         let tableData = helper.createHTMLtable(data.recordsToday)
-        let content = info + tableData
+        let currMonthHTML = helper.getTotalCurrentMonthHTML
+
+        currMonthHTML = currMonthHTML.split("$CURRENT_MONTH_TOTAL").join(totalCurrentMonth)
+
+        let content = info + tableData + currMonthHTML
         let mail = helper.setupMail(mailer, 'Daily Expense Report', content)
 
         mail.transporter.sendMail(mail.mailOptions, (err, info) => {
@@ -137,10 +143,12 @@ app.get('/playground', async (req, res) => {
 
     let averages = await analytics.loadAverages()
     let dailyTotal = await analytics.loadTotalPerDay()
+    let totalCurrentMonth = await analytics.totalCurrentMonth()
 
     res.json({
         averages,
-        dailyTotal
+        dailyTotal,
+        totalCurrentMonth
     })
 })
 

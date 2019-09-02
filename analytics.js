@@ -1,23 +1,26 @@
 const moment = require('moment')
 const fetch = require('node-fetch')
-const formatter = "LLLL"
+
+// formatters
+const FORMATTER = "LLLL"
+const CURRENT_MONTH_FORMATTER = "MMYYYY"
 
 let dailyExpenseReport = async () => {
 
     let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
     let data = await records.json()
-
     let items = data.records
+
     let comparatorFormat = "MMDDYYYY"
     let now = moment().format(comparatorFormat)
 
     let recordsToday = items.filter(item => {
-        let formattedDate = moment(item.date, formatter).add(8, 'h').format(comparatorFormat)
+        let formattedDate = moment(item.date, FORMATTER).add(8, 'h').format(comparatorFormat)
         return formattedDate === now
     })
 
     recordsToday.map(item => {
-        item.date = moment(item.date, formatter).add(8, 'h').format("LT")
+        item.date = moment(item.date, FORMATTER).add(8, 'h').format("LT")
         item.description = item.description.trim() === '' ? '-- No description specified --' : item.description
         return item
     })
@@ -38,10 +41,10 @@ let loadTotalPerDay = async () => {
 
     items.map(item => {
         if (item.is_old) {
-            item.date = moment(item.date, formatter).format("LL")
+            item.date = moment(item.date, FORMATTER).format("LL")
         }
         else {
-            item.date = moment(item.date, formatter).add(8, 'h').format("LL")
+            item.date = moment(item.date, FORMATTER).add(8, 'h').format("LL")
         }
         return item
     })
@@ -70,8 +73,8 @@ let loadAverages = async () => {
     core['dailyAverage'] = data.total /items.length
 
     items = items.map(item => {
-        item.is_old ? item.date = moment(item.date, formatter).format("dddd") : 
-                    item.date = moment(item.date, formatter).add(8, 'h').format("dddd")
+        item.is_old ? item.date = moment(item.date, FORMATTER).format("dddd") : 
+                    item.date = moment(item.date, FORMATTER).add(8, 'h').format("dddd")
 
         return item
     })
@@ -91,10 +94,35 @@ let loadAverages = async () => {
     return core
 }
 
+let totalCurrentMonth = async () => {
+
+    let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
+    let data = await records.json()
+    let items = data.records
+
+    items.map(item => {
+        if (item.is_old) {
+            item.date = moment(item.date, FORMATTER).format(CURRENT_MONTH_FORMATTER)
+        }
+        else {
+            item.date = moment(item.date, FORMATTER).add(8, 'h').format(CURRENT_MONTH_FORMATTER)
+        }
+        return item
+    })
+
+    let now = moment().format(CURRENT_MONTH_FORMATTER)
+    let currentMonthTotal = items.filter(item => item.date === now).reduce(
+        (accumulator, value) => accumulator + value.amount, 0
+    )
+
+    return currentMonthTotal
+}
+
 
 // ------------------------ EXPORTS BELOW ----------------------------------
 module.exports = {
     dailyExpenseReport,
     loadTotalPerDay,
-    loadAverages
+    loadAverages,
+    totalCurrentMonth
 }

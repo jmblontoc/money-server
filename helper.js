@@ -39,7 +39,7 @@ let createHTMLtable = (data) => {
 
     for (let i of data) {
 
-        html += 
+        html +=
             `
             <tr>
                 <td>${i.title}</td>
@@ -55,9 +55,13 @@ let createHTMLtable = (data) => {
     return html
 }
 
+const getTotalCurrentMonthHTML = `<p style="margin-top: 20px;">For the current month, 
+                                    you have spent a total of <strong> Php $CURRENT_MONTH_TOTAL </strong></p>`
+
 module.exports = {
     get_total: getTotalAmount,
     setupMail,
-    createHTMLtable
+    createHTMLtable,
+    getTotalCurrentMonthHTML
 }
 
