@@ -1,3 +1,6 @@
+const fs = require('fs')
+const mailer = require('nodemailer')
+
 let getTotalAmount = (collection) => {
     return collection.aggregate([{
         $group: {
@@ -56,12 +59,44 @@ let createHTMLtable = (data) => {
 }
 
 const getTotalCurrentMonthHTML = `<p style="margin-top: 20px;">For the current month, 
-                                    you have spent a total of <strong> Php $CURRENT_MONTH_TOTAL </strong></p>`
+                                    you have spent a total of 
+                                    <strong> Php $CURRENT_MONTH_TOTAL 
+                                    </strong></p>`
+
+let sendDailyEmail = (data, totalCurrentMonth) => {
+
+    fs.readFile('./email/daily-report.html', "utf8", (err, info) => {
+        if (err) {
+            console.log(err)
+            return false
+        }
+
+        info = info.split("$DAILY_TOTAL").join(data.dailyTotal)
+
+        let tableData = createHTMLtable(data.recordsToday)
+        let currMonthHTML = getTotalCurrentMonthHTML
+
+        currMonthHTML = currMonthHTML.split("$CURRENT_MONTH_TOTAL").join(totalCurrentMonth)
+
+        let content = info + tableData + currMonthHTML
+        let mail = setupMail(mailer, 'Daily Expense Report', content)
+
+        mail.transporter.sendMail(mail.mailOptions, (err) => {
+            if (err) {
+                console.log(err)
+                return false
+            }
+
+            console.log("Sent email")
+        })
+    })
+}
 
 module.exports = {
     get_total: getTotalAmount,
     setupMail,
     createHTMLtable,
-    getTotalCurrentMonthHTML
+    getTotalCurrentMonthHTML,
+    sendDailyEmail
 }
 
