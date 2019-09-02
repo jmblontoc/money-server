@@ -159,7 +159,7 @@ app.get('/playground', async (req, res) => {
 app.listen(port, () => {
     console.log(`running on port`)
 
-    cron.schedule('30 12,18,22 * * *', async () => {
+    cron.schedule('30,33 12,18,22,13 * * *', async () => {
 
         let data = await analytics.dailyExpenseReport()
         let totalCurrentMonth = await analytics.totalCurrentMonth()
