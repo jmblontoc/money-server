@@ -11,8 +11,8 @@ let getTotalAmount = (collection) => {
 }
 
 const credentials = {
-    user: 'mrboristhecat@gmail.com',
-    pass: 'googlehelper'
+    user: process.env.BORIS_EMAIL,
+    pass: process.env.BORIS_PASS
 }
 
 let setupMail = (mailer, subject, content) => {
@@ -23,7 +23,7 @@ let setupMail = (mailer, subject, content) => {
     })
 
     let mailOptions = {
-        from: 'dev.jmlontoc@gmail.com',
+        from: process.env.BORIS_EMAIL,
         to: ['jmlontoc4@gmail.com'],
         subject: subject,
         html: content
