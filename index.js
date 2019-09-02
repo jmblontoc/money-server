@@ -10,6 +10,7 @@ const moment = require('moment')
 const mailer = require('nodemailer')
 const fs = require('fs')
 const cron = require('node-cron')
+const http = require('http')
 
 app.use(cors())
 app.use(express.json())
@@ -159,7 +160,12 @@ app.get('/playground', async (req, res) => {
 app.listen(port, () => {
     console.log(`running on port`)
 
-    cron.schedule('30,33 12,18,22,13 * * *', async () => {
+    // keep awake
+    setInterval(() => {
+        http.get(`http://money-server-api.herokuapp.com/`)
+    }, 60000 * 5)
+
+    cron.schedule('30,33 8,12,18,22,13 * * *', async () => {
 
         let data = await analytics.dailyExpenseReport()
         let totalCurrentMonth = await analytics.totalCurrentMonth()
