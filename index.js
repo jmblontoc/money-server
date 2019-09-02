@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 8181
+require('dotenv').config()
 
 const helper = require('./helper')
 const analytics = require('./analytics')
@@ -144,10 +145,14 @@ app.get('/playground', async (req, res) => {
     let dailyTotal = await analytics.loadTotalPerDay()
     let totalCurrentMonth = await analytics.totalCurrentMonth()
 
+    // res.json({
+    //     averages,
+    //     dailyTotal,
+    //     totalCurrentMonth
+    // })
+
     res.json({
-        averages,
-        dailyTotal,
-        totalCurrentMonth
+        hero: process.env.TEST_NAME
     })
 })
 
