@@ -160,11 +160,6 @@ app.get('/playground', async (req, res) => {
 app.listen(port, () => {
     console.log(`running on port`)
 
-    // keep awake
-    setInterval(() => {
-        http.get(`http://money-server-api.herokuapp.com/`)
-    }, 60000 * 5)
-
     cron.schedule('30,33 8,12,18,22,13 * * *', async () => {
 
         let data = await analytics.dailyExpenseReport()
