@@ -9,8 +9,6 @@ const analytics = require('./analytics')
 const moment = require('moment')
 const mailer = require('nodemailer')
 const fs = require('fs')
-const cron = require('node-cron')
-const http = require('http')
 
 app.use(cors())
 app.use(express.json())
@@ -135,7 +133,7 @@ app.get('/v1/email/daily', async (req, res) => {
                 res.status(520).json({ error: err })
             }
 
-            res.status(203).json({ info: info })
+            res.status(203).json({ time: moment().format("LLLL") })
         })
     })
 })
@@ -145,26 +143,13 @@ app.get('/playground', async (req, res) => {
     let averages = await analytics.loadAverages()
     let dailyTotal = await analytics.loadTotalPerDay()
     let totalCurrentMonth = await analytics.totalCurrentMonth()
-
-    // res.json({
-    //     averages,
-    //     dailyTotal,
-    //     totalCurrentMonth
-    // })
+    let dailyReport = await analytics.dailyExpenseReport()
 
     res.json({
-        hero: process.env.TEST_NAME
+        dailyReport
     })
 })
 
 app.listen(port, () => {
     console.log(`running on port`)
-
-    cron.schedule('30,33 8,12,18,22,13 * * *', async () => {
-
-        let data = await analytics.dailyExpenseReport()
-        let totalCurrentMonth = await analytics.totalCurrentMonth()
-
-        helper.sendDailyEmail(data, totalCurrentMonth)
-    }, { timezone: 'Asia/Singapore' })
 })
