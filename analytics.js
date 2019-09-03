@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment-timezone')
 const fetch = require('node-fetch')
 
 // formatters
@@ -12,7 +12,7 @@ let dailyExpenseReport = async () => {
     let items = data.records
 
     let comparatorFormat = "MMDDYYYY"
-    let now = moment().format(comparatorFormat)
+    let now = moment().tz('Asia/Manila').format(comparatorFormat)
 
     let recordsToday = items.filter(item => {
         let formattedDate = moment(item.date, FORMATTER).add(8, 'h').format(comparatorFormat)
@@ -110,7 +110,7 @@ let totalCurrentMonth = async () => {
         return item
     })
 
-    let now = moment().format(CURRENT_MONTH_FORMATTER)
+    let now = moment().tz('Asia/Manila').format(CURRENT_MONTH_FORMATTER)
     let currentMonthTotal = items.filter(item => item.date === now).reduce(
         (accumulator, value) => accumulator + value.amount, 0
     )
