@@ -6,7 +6,7 @@ require('dotenv').config()
 
 const helper = require('./helper')
 const analytics = require('./analytics')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const mailer = require('nodemailer')
 const fs = require('fs')
 
@@ -133,7 +133,7 @@ app.get('/v1/email/daily', async (req, res) => {
                 res.status(520).json({ error: err })
             }
 
-            res.status(203).json({ time: moment().format("LLLL") })
+            res.status(203).json({ time: moment().tz('Asia/Manila').format("LLLL") })
         })
     })
 })
