@@ -8,6 +8,7 @@ const helper = require('./helper')
 const analytics = require('./analytics')
 const moment = require('moment-timezone')
 const mailer = require('nodemailer')
+const templates = require('./email/templates')
 const fs = require('fs')
 
 app.use(cors())
@@ -79,7 +80,7 @@ app.get('/v1/records', (req, res) => {
         }
 
         collection.find().sort({ date: -1 }).toArray().then(
-            async (resp) => {
+            async(resp) => {
                 let total = await helper.get_total(collection)
 
                 resp = resp.sort((a, b) => {
@@ -108,7 +109,7 @@ app.get('/v1/records', (req, res) => {
 
 
 // DAILY EXPENSE REPORT
-app.get('/v1/email/daily', async (req, res) => {
+app.get('/v1/email/daily', async(req, res) => {
 
     let data = await analytics.dailyExpenseReport()
     let totalCurrentMonth = await analytics.totalCurrentMonth()
@@ -138,15 +139,40 @@ app.get('/v1/email/daily', async (req, res) => {
     })
 })
 
-app.get('/playground', async (req, res) => {
+app.get('/v1/email/monthly-report', async(req, res) => {
+
+    let monthlyData = await analytics.totalPerMonth()
+
+    let cleanedData = Object.keys(monthlyData).map(key => {
+        let temp = {}
+        temp[key] = monthlyData[key]
+
+        return temp
+    })
+
+    let content = templates.PER_MONTH_TEMPLATE.concat(templates.createPerMonthTable(cleanedData))
+
+    let mail = helper.setupMail(mailer, 'Monthly Expense Report', content)
+
+    mail.transporter.sendMail(mail.mailOptions, (err, info) => {
+        if (err) {
+            res.status(520).json({ error: err })
+        }
+
+        res.status(203).json({ info })
+    })
+})
+
+app.get('/playground', async(req, res) => {
 
     let averages = await analytics.loadAverages()
     let dailyTotal = await analytics.loadTotalPerDay()
     let totalCurrentMonth = await analytics.totalCurrentMonth()
     let dailyReport = await analytics.dailyExpenseReport()
+    let monthlyTotal = await analytics.totalPerMonth()
 
     res.json({
-        dailyReport
+        monthlyTotal
     })
 })
 

@@ -5,7 +5,7 @@ const fetch = require('node-fetch')
 const FORMATTER = "LLLL"
 const CURRENT_MONTH_FORMATTER = "MMYYYY"
 
-let dailyExpenseReport = async () => {
+let dailyExpenseReport = async() => {
 
     let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
     let data = await records.json()
@@ -33,7 +33,7 @@ let dailyExpenseReport = async () => {
     }
 }
 
-let loadTotalPerDay = async () => {
+let loadTotalPerDay = async() => {
 
     let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
     let data = await records.json()
@@ -42,8 +42,7 @@ let loadTotalPerDay = async () => {
     items.map(item => {
         if (item.is_old) {
             item.date = moment(item.date, FORMATTER).format("LL")
-        }
-        else {
+        } else {
             item.date = moment(item.date, FORMATTER).add(8, 'h').format("LL")
         }
         return item
@@ -53,8 +52,7 @@ let loadTotalPerDay = async () => {
     for (let item of items) {
         if (aggregatedData.hasOwnProperty(item.date)) {
             aggregatedData[item.date] += item.amount
-        }
-        else {
+        } else {
             aggregatedData[item.date] = item.amount
         }
     }
@@ -62,7 +60,7 @@ let loadTotalPerDay = async () => {
     return aggregatedData
 }
 
-let loadAverages = async () => {
+let loadAverages = async() => {
 
     let core = {}
 
@@ -70,11 +68,11 @@ let loadAverages = async () => {
     let data = await records.json()
     let items = data.records
 
-    core['dailyAverage'] = data.total /items.length
+    core['dailyAverage'] = data.total / items.length
 
     items = items.map(item => {
-        item.is_old ? item.date = moment(item.date, FORMATTER).format("dddd") : 
-                    item.date = moment(item.date, FORMATTER).add(8, 'h').format("dddd")
+        item.is_old ? item.date = moment(item.date, FORMATTER).format("dddd") :
+            item.date = moment(item.date, FORMATTER).add(8, 'h').format("dddd")
 
         return item
     })
@@ -83,8 +81,7 @@ let loadAverages = async () => {
     for (let item of items) {
         if (perDayTotal.hasOwnProperty(item.date)) {
             perDayTotal[item.date] += item.amount
-        }
-        else {
+        } else {
             perDayTotal[item.date] = item.amount
         }
     }
@@ -94,7 +91,7 @@ let loadAverages = async () => {
     return core
 }
 
-let totalCurrentMonth = async () => {
+let totalCurrentMonth = async() => {
 
     let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
     let data = await records.json()
@@ -103,8 +100,7 @@ let totalCurrentMonth = async () => {
     items.map(item => {
         if (item.is_old) {
             item.date = moment(item.date, FORMATTER).format(CURRENT_MONTH_FORMATTER)
-        }
-        else {
+        } else {
             item.date = moment(item.date, FORMATTER).add(8, 'h').format(CURRENT_MONTH_FORMATTER)
         }
         return item
@@ -118,11 +114,38 @@ let totalCurrentMonth = async () => {
     return currentMonthTotal
 }
 
+let totalPerMonth = async() => {
+
+    let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
+    let data = await records.json()
+    let items = data.records
+
+    items.map(item => {
+        if (item.is_old) {
+            item.date = moment(item.date, FORMATTER).format("MMMM YYYY")
+        } else {
+            item.date = moment(item.date, FORMATTER).add(8, 'h').format("MMMM YYYY")
+        }
+        return item
+    })
+
+    let monthData = {}
+    for (let item of items) {
+        if (monthData.hasOwnProperty(item.date)) {
+            monthData[item.date] += item.amount
+        } else {
+            monthData[item.date] = item.amount
+        }
+    }
+
+    return monthData
+}
 
 // ------------------------ EXPORTS BELOW ----------------------------------
 module.exports = {
     dailyExpenseReport,
     loadTotalPerDay,
     loadAverages,
-    totalCurrentMonth
+    totalCurrentMonth,
+    totalPerMonth
 }
