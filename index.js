@@ -177,5 +177,5 @@ app.get('/playground', async(req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`running on port`)
+    console.log(`running on port ${port}`)
 })
