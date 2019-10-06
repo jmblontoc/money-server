@@ -132,9 +132,11 @@ app.get('/v1/email/daily', async(req, res) => {
         mail.transporter.sendMail(mail.mailOptions, (err, info) => {
             if (err) {
                 res.status(520).json({ error: err })
+                return
             }
 
-            res.status(203).json({ time: moment().tz('Asia/Manila').format("LLLL") })
+            res.status(203).json({ success: 'Email succesfully sent' })
+            return
         })
     })
 })
