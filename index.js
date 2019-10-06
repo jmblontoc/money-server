@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const port = process.env.PORT || 8181
+const port = process.env.PORT || 3000
 require('dotenv').config()
 
 const helper = require('./helper')
