@@ -10,6 +10,7 @@ const moment = require('moment-timezone')
 const mailer = require('nodemailer')
 const templates = require('./email/templates')
 const fs = require('fs')
+const fetch = require('node-fetch')
 
 app.use(cors())
 app.use(express.json())
@@ -139,6 +140,49 @@ app.get('/v1/email/daily', async(req, res) => {
             return
         })
     })
+})
+
+app.get('/v1/telegram/daily', async(req, res) => {
+    let data = await analytics.dailyExpenseReport()
+    let totalCurrentMonth = await analytics.totalCurrentMonth()
+
+    fs.readFile('./email/daily-report.html', "utf8", async(err, info) => {
+        if (err) {
+            res.json({ err: err }).status(599)
+        }
+
+        info = info.split("$DAILY_TOTAL").join(data.dailyTotal)
+
+        let tableData = helper.createHTMLtable(data.recordsToday)
+        let currMonthHTML = helper.getTotalCurrentMonthHTML
+
+        currMonthHTML = currMonthHTML.split("$CURRENT_MONTH_TOTAL").join(totalCurrentMonth)
+
+        let content = helper.getDailyExpenseReportTemplate({
+            total: data.dailyTotal,
+            records: data.recordsToday,
+            total_current_month: totalCurrentMonth
+        })
+        let url = `https://api.telegram.org/bot824519524:AAElodIngYraobRAiEl96OXbR66bCopMFnE/sendMessage`
+        let chat_id = `-1001207631326`
+        let body = {
+            text: content,
+            chat_id: chat_id,
+            parse_mode: "Markdown"
+        }
+
+        let response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        let json = await response.json()
+        res.json({ response: json, body: body })
+    })
+
 })
 
 app.get('/v1/email/monthly-report', async(req, res) => {

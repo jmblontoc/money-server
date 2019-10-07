@@ -92,10 +92,26 @@ let sendDailyEmail = (data, totalCurrentMonth) => {
     })
 }
 
+let getDailyExpenseReportTemplate = (data) => {
+
+    let recordsToday = '\n'
+
+    for (record of data.records) {
+        recordsToday += `*\n${record.title}* - ${record.description} - ${record.date} - *${record.amount} pesos*`
+    }
+
+    let text = `
+        *Good day, JM! Here is your daily expense report:* \n\nYou spent a total of *Php ${data.total}* today so far.
+        ${recordsToday}\n\nFor the current month, you have spent a total of *Php ${data.total_current_month}*
+    `
+    return text
+}
+
 module.exports = {
     get_total: getTotalAmount,
     setupMail,
     createHTMLtable,
     getTotalCurrentMonthHTML,
-    sendDailyEmail
+    sendDailyEmail,
+    getDailyExpenseReportTemplate
 }
