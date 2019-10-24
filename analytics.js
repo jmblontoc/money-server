@@ -7,7 +7,7 @@ const CURRENT_MONTH_FORMATTER = "MMYYYY"
 
 let dailyExpenseReport = async() => {
 
-    let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
+    let records = await fetch('https://money-server-api.herokuapp.com/v2/records')
     let data = await records.json()
     let items = data.records
 
@@ -15,12 +15,12 @@ let dailyExpenseReport = async() => {
     let now = moment().tz('Asia/Manila').format(comparatorFormat)
 
     let recordsToday = items.filter(item => {
-        let formattedDate = moment(item.date, FORMATTER).add(8, 'h').format(comparatorFormat)
+        let formattedDate = moment(item.date, FORMATTER).format(comparatorFormat)
         return formattedDate === now
     })
 
     recordsToday.map(item => {
-        item.date = moment(item.date, FORMATTER).add(8, 'h').format("LT")
+        item.date = moment(item.date, FORMATTER).format("LT")
         item.description = item.description.trim() === '' ? '-- No description specified --' : item.description
         return item
     })
@@ -93,18 +93,9 @@ let loadAverages = async() => {
 
 let totalCurrentMonth = async() => {
 
-    let records = await fetch('https://money-server-api.herokuapp.com/v1/records')
+    let records = await fetch('https://money-server-api.herokuapp.com/v2/records')
     let data = await records.json()
     let items = data.records
-
-    items.map(item => {
-        if (item.is_old) {
-            item.date = moment(item.date, FORMATTER).format(CURRENT_MONTH_FORMATTER)
-        } else {
-            item.date = moment(item.date, FORMATTER).add(8, 'h').format(CURRENT_MONTH_FORMATTER)
-        }
-        return item
-    })
 
     let now = moment().tz('Asia/Manila').format(CURRENT_MONTH_FORMATTER)
     let currentMonthTotal = items.filter(item => item.date === now).reduce(
