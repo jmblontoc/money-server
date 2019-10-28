@@ -32,7 +32,7 @@ app.get('/v2/records', (req, res) => {
             res.status(500).json({ err })
         }
 
-        const collection = client.db("money").collection("records_v2")
+        const collection = client.db("money").collection("records")
         if (!collection) {
             res.status(500).json({ msg: "No collection found" })
         }
@@ -49,7 +49,10 @@ app.get('/v2/records', (req, res) => {
 
                 res.end()
             }
-        ).catch(error => res.status(500).json({ error }))
+        ).catch(error => {
+            res.status(500).json({ error })
+            res.end()
+        })
     })
 })
 
