@@ -47,7 +47,7 @@ app.get('/v2/records', (req, res) => {
                     total
                 })
             }
-        )
+        ).catch(error => res.status(500).json({ error }))
     })
 })
 
