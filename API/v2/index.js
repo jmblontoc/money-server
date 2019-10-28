@@ -46,6 +46,8 @@ app.get('/v2/records', (req, res) => {
                     records: resp.reverse(),
                     total
                 })
+
+                res.end()
             }
         ).catch(error => res.status(500).json({ error }))
     })
