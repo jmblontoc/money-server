@@ -143,6 +143,39 @@ app.put('/v2/records', (req, res) => {
     })
 })
 
+// get total spendings for today
+app.get('/v2/records/total/today', (req, res) => {
+    client.connect(err => {
+        if (err) {
+            res.status(500).json({ err })
+        }
+
+        const collection = client.db("money").collection("records_v2")
+        if (!collection) {
+            res.status(500).json({ msg: "No collection found" })
+        }
+
+        collection.find().toArray().then(
+            resp => {
+                let recordsToday = resp.filter(record => {
+                    let now = moment().tz('Asia/Manila').format('LL')
+                    let recordDate = moment(record.date, 'LLLL').tz('Asia/Manila').format('LL')
+                    return now === recordDate
+                })
+
+                let total = recordsToday.reduce((accumulator, { amount }) => accumulator + amount, 0)
+
+                res.status(200).json({ total })
+
+                res.end()
+            }
+        ).catch(error => {
+            res.status(500).json({ error })
+            res.end()
+        })
+    })
+})
+
 /** listen */
 app.listen(port, () => {
     console.log(`App is running on port ${port}`)
