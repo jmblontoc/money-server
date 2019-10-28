@@ -32,7 +32,7 @@ app.get('/v2/records', (req, res) => {
             res.status(500).json({ err })
         }
 
-        const collection = client.db("money").collection("records")
+        const collection = client.db("money").collection("records_v2")
         if (!collection) {
             res.status(500).json({ msg: "No collection found" })
         }
