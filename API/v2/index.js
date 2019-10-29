@@ -160,10 +160,10 @@ app.get('/v2/records/total/today', (req, res) => {
                 let recordsToday = resp.filter(record => {
                     let now = moment().tz('Asia/Manila').format('LL')
                     let recordDate = moment(record.date, 'LLLL').tz('Asia/Manila').format('LL')
+                    console.log(now, recordDate)
                     return now === recordDate
                 })
 
-                console.log(recordsToday)
                 let total = recordsToday.reduce((accumulator, { amount }) => accumulator + amount, 0)
 
                 res.status(200).json({ total })
