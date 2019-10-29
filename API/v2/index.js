@@ -158,9 +158,8 @@ app.get('/v2/records/total/today', (req, res) => {
         collection.find().toArray().then(
             resp => {
                 let recordsToday = resp.filter(record => {
-                    let now = moment().tz('Asia/Manila').format('LL')
-                    let recordDate = moment(record.date, 'LLLL').tz('Asia/Manila').format('LL')
-                    console.log(moment(record.date, 'LLLL').tz('Asia/Manila'))
+                    let now = moment().tz('Asia/Manila').format('MMDDYYYY')
+                    let recordDate = moment(record.date, 'LLLL').tz('Asia/Manila').format('MMDDYYYY')
                     return now === recordDate
                 })
 
