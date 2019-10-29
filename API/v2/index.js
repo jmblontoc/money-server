@@ -160,7 +160,7 @@ app.get('/v2/records/total/today', (req, res) => {
                 let recordsToday = resp.filter(record => {
                     let now = moment().tz('Asia/Manila').format('LL')
                     let recordDate = moment(record.date, 'LLLL').tz('Asia/Manila').format('LL')
-                    console.log(now, recordDate)
+                    console.log(moment(record.date, 'LLLL').tz('Asia/Manila'))
                     return now === recordDate
                 })
 
