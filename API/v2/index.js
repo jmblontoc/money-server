@@ -163,6 +163,7 @@ app.get('/v2/records/total/today', (req, res) => {
                     return now === recordDate
                 })
 
+                console.log(recordsToday)
                 let total = recordsToday.reduce((accumulator, { amount }) => accumulator + amount, 0)
 
                 res.status(200).json({ total })
